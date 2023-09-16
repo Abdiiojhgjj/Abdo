@@ -1,0 +1,111 @@
+import pygame
+import random
+
+# تعريف بعض المتغيرات الأساسية
+WIDTH = 600
+HEIGHT = 400
+
+# تعريف ألوان اللعبة
+BLACK = (0, 0, 0)
+WHITE = (255, 255, 255)
+RED = (255, 0, 0)
+GREEN = (0, 255, 0)
+BLUE = (0, 0, 255)
+
+# تعريف عنصر اللعبة الأساسي، وهو الدودة
+class Snake:
+    def __init__(self, x, y, length):
+        self.x = x
+        self.y = y
+        self.length = length
+        self.direction = "right"
+        self.body = [(x, y)] * length
+
+    def update(self):
+        # تحديث اتجاه الدودة بناءً على ضغطات المستخدم
+        if pygame.key.get_pressed()[pygame.K_UP]:
+            self.direction = "up"
+        elif pygame.key.get_pressed()[pygame.K_DOWN]:
+            self.direction = "down"
+        elif pygame.key.get_pressed()[pygame.K_LEFT]:
+            self.direction = "left"
+        elif pygame.key.get_pressed()[pygame.K_RIGHT]:
+            self.direction = "right"
+
+        # تحريك الدودة
+        if self.direction == "up":
+            self.y -= 1
+        elif self.direction == "down":
+            self.y += 1
+        elif self.direction == "left":
+            self.x -= 1
+        elif self.direction == "right":
+            self.x += 1
+
+        # إضافة رأس الدودة إلى جسمها
+        self.body.insert(0, (self.x, self.y))
+
+        # إزالة ذيل الدودة إذا تجاوز طولها الحد الأقصى
+        if len(self.body) > 100:
+            self.body.pop()
+
+    def draw(self, screen):
+        # رسم الدودة على الشاشة
+        for x, y in self.body:
+            pygame.draw.rect(screen, GREEN, (x, y, 10, 10))
+
+# تعريف عنصر اللعبة الآخر، وهو الطعام
+class Food:
+    def __init__(self):
+        self.x = random.randint(0, WIDTH - 10)
+        self.y = random.randint(0, HEIGHT - 10)
+
+    def draw(self, screen):
+        # رسم الطعام على الشاشة
+        pygame.draw.rect(screen, RED, (self.x, self.y, 10, 10))
+
+# تعريف دالة لبدء اللعبة
+def main():
+    # بدء pygame
+    pygame.init()
+
+    # إنشاء النافذة
+    screen = pygame.display.set_mode((WIDTH, HEIGHT))
+
+    # إنشاء الدودة
+    snake = Snake(WIDTH // 2, HEIGHT // 2, 10)
+
+    # إنشاء الطعام
+    food = Food()
+
+    # بدء الحلقة الرئيسية للعبة
+    running = True
+    while running:
+        # معالجة أحداث المستخدم
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+
+        # تحديث اللعبة
+        snake.update()
+
+        # رسم اللعبة على الشاشة
+        screen.fill(BLACK)
+        snake.draw(screen)
+        food.draw(screen)
+        pygame.display.update()
+
+        # التحقق من اصطدام الدودة بالطعام
+        if snake.body[0] == food.x, food.y:
+            # زيادة طول الدودة
+            snake.length += 1
+
+            # إنشاء طعام جديد
+            food = Food()
+
+    # إنهاء pygame
+    pygame.quit()
+
+# بدء اللعبة
+if __name__ == "__main__":
+    main()
